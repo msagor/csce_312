@@ -1,0 +1,77 @@
+
+
+
+
+module DFF (q,qbar,clock,data);
+	output q, qbar;
+	input clock, data;
+	
+	wire data_not, clock_not;
+	wire first_nand1, first_nand2;
+	wire nand1, nand2;
+	wire first_q, first_qbar;
+	
+	
+	not one(data_not, data);
+	not two(clock_not, clock);
+	nand three(first_nand1,clock, data);
+	nand four(first_nand2,clock, data_not);
+	nand five(first_qbar,first_nand2,first_q);
+	nand siz(first_q,first_nand1,first_qbar);
+	nand seven(nand1,clock_not, first_q);
+	nand eight(nand2,clock_not, first_qbar);
+	nand nine(qbar,nand2,q);
+	nand ten(q,nand1,qbar);
+	
+endmodule
+
+
+
+module m555(clock);
+    parameter InitDelay = 10, Ton = 50, Toff = 50;
+    output clock;
+    reg clock;
+
+    initial begin
+        #InitDelay clock = 1;
+    end
+
+    always begin
+        #Ton clock = ~clock;
+        #Toff clock = ~clock;
+    end
+endmodule
+
+module testD(q, qbar, clock, data);
+    input  q, qbar, clock;
+    output data;
+    reg    data;
+
+    initial begin
+        $monitor ($time, " q = %d, qbar = %d, clock = %d, data = %d", q, qbar, clock, data);
+        data = 0;
+        #25  
+        data = 1;
+        #100 
+        data = 0;
+        #50 
+        data = 1;
+        #50 
+        data = 0;
+        #100 
+        data = 1;
+        #50 
+        data = 0;
+        #50 
+        data = 1;
+        #100
+        $finish; /* $finish simulation after 100 time simulation units */
+    end
+endmodule
+
+module testBenchD;
+    wire clock, q, qbar, data;
+    m555 clk(clock);
+    DFF dff(q, qbar, clock, data);
+    testD td(q, qbar, clock, data);
+endmodule

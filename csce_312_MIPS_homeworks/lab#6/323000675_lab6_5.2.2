@@ -1,0 +1,65 @@
+
+
+module or_gate(out,a,b,c,d);
+input a,b,c,d;
+output out;
+wire e,f;
+or one(e,a,b);
+or two(f,e,c);
+or three(out,f,d);
+endmodule
+
+module and_gate(out,a,b,c);
+input a,b,c;
+output out;
+wire e,f;
+and one(e,a,b);
+and two(out,e,c);
+endmodule
+
+
+module mux(w,x,y,z,a,b,out);
+input a,b,w,x,y,z;
+output out;
+wire a1,b1,e,f,g,h;
+not(a1,a);
+not(b1,b);
+and_gate n0(e,a1,b1,w);
+and_gate n1(f,a1,b,x);
+and_gate n2(g,a,b1,y);
+and_gate n3(h,a,b,z);
+or_gate n4(out,e,f,g,h);
+
+endmodule
+
+
+
+module test();
+reg a,b,w,x,y,z;
+wire out;
+mux call(w,x,y,z,a,b,out);
+initial begin
+        $monitor ($time,"\tw=%b\tx=%b\ty=%b\tz=%b\ta=%b\tb=%b\tout=%b",w,x,y,z,a,b,out);
+	
+        a=0; b=0; w = 0; x = 0; y=0; z=0;    								/* a =0 and b = 0 so it selects input from w=0*/
+        #1 
+        a=0; b=0; w = 1; x = 1; y=1; z=1; 									/* a =0 and b = 0 so it selects input from w=1 */
+        #1
+        a=0; b=1; w = 0; x = 0; y=0; z=0; 									/* a =0 and b = 1 so it selects input from x=0 */
+        #1 
+        a=0; b=1;  w = 1; x = 1; y=1; z=1; 									/* a =0 and b = 1 so it selects input from x=1 */
+        #1
+		a=1; b=0; w = 0; x = 0; y=0; z=0; 									/* a =1 and b = 0 so it selects input from y=0 */
+        #1 
+        a=1; b=0; w = 1; x = 1; y=1; z=1; 									/* a =1 and b = 0 so it selects input from y=1 */
+        #1
+		a=1; b=1; w = 0; x = 0; y=0; z=0; 									/* a =1 and b = 1 so it selects input from z=0 */
+        #1 
+        a=1; b=1; w = 1; x = 1; y=1; z=1; 									/* a =1 and b = 1 so it selects input from z=1 */
+        #1
+        $finish;
+end
+endmodule
+
+
+

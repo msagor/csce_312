@@ -1,0 +1,113 @@
+
+
+module full_adder(s,cout, a, b,cin);
+    input    a, b,cin;
+    output   s,cout;
+    
+
+    nand    n1(c,a,b);
+    nand    n2(d,a,c);
+	nand    n3(e,b,c);
+	nand    n4(f,d,e);
+	nand    n5(g,f,cin);
+	nand    n6(h,f,g);
+	nand    n7(i,g,cin);
+	nand    n8(cout,g,c);
+	nand    n9(s,h,i);
+	
+endmodule
+
+
+module ripple_carry_adder(s,cout,a,b,cin);
+	
+	input [3:0] a,b;
+	input cin;
+	output [3:0] s;
+	output cout;
+	wire [2:0] Cout;
+	
+	full_adder adder0(s[0],Cout[0], a[0], b[0], cin);
+	full_adder adder1(s[1],Cout[1], a[1], b[1], Cout[0]);
+	full_adder adder2(s[2],Cout[2], a[2], b[2], Cout[1]);
+	full_adder adder3(s[3],cout, a[3], b[3], Cout[2]);
+	
+	endmodule
+
+	
+	
+
+
+module ripple_carry_adder_32bit(S, Cout,A,B,Cin);
+	input [31:0] A, B;
+    input    Cin;
+	output [31:0] S;
+    output  Cout;
+	wire [6:0] C;
+	
+	ripple_carry_adder adder0(S[3:0]  , C[0], A[3:0]  ,	B[3:0]  , Cin);
+	ripple_carry_adder adder1(S[7:4]  , C[1], A[7:4]  ,	B[7:4]  , C[0]);
+	ripple_carry_adder adder2(S[11:8] , C[2], A[11:8] ,	B[11:8] , C[1]);
+	ripple_carry_adder adder3(S[15:12], C[3], A[15:12], B[15:12], C[2]);
+	ripple_carry_adder adder4(S[19:16], C[4], A[19:16], B[19:16], C[3]);
+	ripple_carry_adder adder5(S[23:20], C[5], A[23:20], B[23:20], C[4]);
+	ripple_carry_adder adder6(S[27:24], C[6], A[27:24], B[27:24], C[5]);
+	ripple_carry_adder adder7(S[31:28], Cout, A[31:28], B[31:28], C[6]);
+	
+	endmodule
+
+
+
+	
+	
+module ripple_carry_adder_test();              
+    reg  [31:0]    A, B;
+	reg	   C0;
+    wire  [31:0] S; 
+	wire Cout;
+
+    ripple_carry_adder_32bit test(S,Cout,A,B,C0);
+initial begin
+		$monitor($time, "\tA=%d\tB=%d\tCin=%b\tS=%d\tCout=%b", A, B, C0, S, Cout);
+		
+		A = 0;		B = 0;		C0 = 0;
+		#1
+		A = 0;		B = 0;		C0 = 1;
+		#1
+		A = 0;		B = 1;		C0 = 0;
+		#1
+		A = 1;		B = 0;		C0 = 0;
+		#1
+		A = 1;		B = 1;		C0 = 0;
+		#1
+		A = 1;		B = 1;		C0 = 1;
+		#1
+		A = 16777215;	B = 16777215;	C0 = 0;
+		#1
+		A = 16777215;	B = 16777215;	C0 = 1;
+		#1
+		A = 4294967295;	B = 0;		C0 = 0;
+		#1
+		A = 4294967295;	B = 0;		C0 = 1;
+		#1
+		A = 4294967295;	B = 1;		C0 = 0;
+		#1
+		A = 4294967295;	B = 1;		C0 = 1;
+		#1
+		A = 0;		B = 4294967295;	C0 = 0;
+		#1
+		A = 0;		B = 4294967295;	C0 = 1;
+		#1
+		A = 1;		B = 4294967295;	C0 = 0;
+		#1
+		A = 1;		B = 4294967295;	C0 = 1;
+		#1
+		A = 4294967295;	B = 4294967295;	C0 = 0;
+		#1
+		A = 4294967295;	B = 4294967295;	C0 = 1;
+		#1
+		$finish;
+	end
+endmodule
+
+
+

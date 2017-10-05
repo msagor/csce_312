@@ -1,0 +1,57 @@
+.data
+B:	.word 722		# B[0]
+	.word 21 		# B[1]
+	.word 4 		# B[2]
+	.word 89		# B[3]
+	.word 16384		# B[4]
+	.word 350		# B[5]
+	.word 6046		# B[6]
+	.word 897		# B[7]
+	.word 1201		# B[8]
+	.word 0			# B[9]
+	.word 904		# B[10]
+	.word 897		# B[11]
+	.word 4805		# B[12]
+	.word 679		# B[13]
+	.word 7			# B[14]
+SZ:	.word 15
+
+.text
+
+main:
+
+addi $t1, $0, 0              # initialize $t1 = i = 0
+
+lw $t2, SZ                   # t2=SZ
+
+addi $t3, $0,0               # t3 = j = 0
+
+la $t4, B                    # t4 = B address
+
+loop1:
+      beq $t1, $t2, else1              # if i < SZ
+      addi $t1, $t1, 1                 # t1 = t1+1 = i+1
+     loop2:
+         bne $t3, $t2, else2           # if j not equal SZ, execute else 2
+         else2:
+          addi $t3, $t3, 1             # j = j + 1
+          lw $t5, B($t1)               # load B[i] address
+          lw $t6, B($t3)               # load B[j] address
+          blt $t6, $t5, else3          # if t5 > t6,    or    B[i] > B[j]    ;go to else3
+         else3:
+          add $t7, $0, $t5             # temp t7 = B[i]
+          sw  $t5, 0($t6)              #B[i] = B[j];
+          sw  $t6, 0($t7)              #B[j] = tmp;
+         else1:                        #if i = SZ then program terminates
+          syscall                      
+         j loop2                       #loop2 continues until j = SZ arrives
+         j loop1                       #loop1 continues until i = SZ arrives
+         li $v0, 10          
+         Syscall
+
+
+
+           
+
+      
+      

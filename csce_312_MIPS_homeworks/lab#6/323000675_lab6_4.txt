@@ -1,0 +1,111 @@
+
+module full_adder(s,cout, a, b,cin);
+    input    a, b,cin;
+    output   s,cout;
+    
+
+    nand    n1(c,a,b);
+    nand    n2(d,a,c);
+	nand    n3(e,b,c);
+	nand    n4(f,d,e);
+	nand    n5(g,f,cin);
+	nand    n6(h,f,g);
+	nand    n7(i,g,cin);
+	nand    n8(cout,g,c);
+	nand    n9(s,h,i);
+	
+endmodule
+
+
+module ripple_carry_adder(s,cout,a,b,cin);
+	
+	input [3:0] a,b;
+	input cin;
+	output [3:0] s;
+	output cout;
+	wire [2:0] Cout;
+	
+	full_adder adder0(s[0],Cout[0], a[0], b[0], cin);
+	full_adder adder1(s[1],Cout[1], a[1], b[1], Cout[0]);
+	full_adder adder2(s[2],Cout[2], a[2], b[2], Cout[1]);
+	full_adder adder3(s[3],cout, a[3], b[3], Cout[2]);
+	
+	endmodule
+
+	
+
+module ripple_carry_adder_test();	
+	
+	reg   [3:0] a, b;
+	reg	   cin;
+    wire  [3:0] s; 
+	wire  cout;
+	
+	ripple_carry_adder testing(s,cout,a,b,cin);
+	initial begin
+	$monitor($time, "\ta=%d\tb=%d\tcin=%b\ts=%d\tcout=%b", a, b, cin, s, cout);
+		
+		a = 0;	b = 0;	cin = 0;
+		#1
+		a = 0;	b = 0;	cin = 1;
+		#1
+		a = 0;	b = 1;	cin = 0;
+		#1
+		a = 1;	b = 0;	cin = 0;
+		#1
+		a = 1;	b = 1;	cin = 0;
+		#1
+		a = 1;	b = 1;	cin = 1;
+		#1
+		a = 7;	b = 7;	cin = 0;
+		#1
+		a = 7;	b = 7;	cin = 1;
+		#1
+		a = 15;	b = 0;	cin = 0;
+		#1
+		a = 15;	b = 0;	cin = 1;
+		#1
+		a = 15;	b = 1;	cin = 0;
+		#1
+		a = 15;	b = 1;	cin = 1;
+		#1
+		a = 0;	b = 15;	cin = 0;
+		#1
+		a = 0;	b = 15;	cin = 1;
+		#1
+		a = 1;	b = 15;	cin = 0;
+	
+	$finish;
+    end
+endmodule
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

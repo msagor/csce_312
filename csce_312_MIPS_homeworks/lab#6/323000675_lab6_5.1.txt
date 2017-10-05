@@ -1,0 +1,69 @@
+
+
+
+
+module and_gate(out,a, b, c) ;
+input a, b,c;
+output out;
+wire d,e;
+
+
+and one(d,a,b);
+and two(out,d,c);
+endmodule
+
+
+module dec(d,e,f,g,h,i,j,k,a,b,c);
+
+input a,b,c;
+wire a1,b1,c1;
+output d,e,f,g,h,i,j,k;
+
+not(a1,a);
+not(b1,b);
+not(c1,c);
+
+and_gate n0(d,a1,b1,c1);
+and_gate n1(e,a1,b1,c);
+and_gate n2(f,a1,b,c1);
+and_gate n3(g,a1,b,c);
+and_gate n4(h,a,b1,c1);
+and_gate n5(i,a,b1,c);
+and_gate n6(j,a,b,c1);
+and_gate n7(k,a,b,c);
+
+endmodule
+
+
+module test();
+  reg a,b,c ;
+  wire d,e,f,g,h,i,j,k;
+
+dec call(d,e,f,g,h,i,j,k,a, b, c);
+
+	initial begin
+        $monitor ($time,"\ta=%b\tb=%b\tc=%b\td=%b\te=%b\tf=%b\tg=%b\th=%b\ti=%b\tj=%b\tk=%b",a,b,c,d,e,f,g,h,i,j,k);
+	
+        a = 0; b = 0; c=0;
+        #1 
+         a = 0; b = 0; c=1;
+        #1
+         a = 0; b = 1; c=0;
+        #1
+         a = 0; b = 1; c=1;
+        #1 
+		 a = 1; b = 0; c=0;
+        #1 
+         a = 1; b = 0; c=1;
+        #1
+         a = 1; b = 1; c=0;
+        #1
+         a = 1; b = 1; c=1;
+		#1
+        $finish;
+    end
+endmodule
+
+
+
+

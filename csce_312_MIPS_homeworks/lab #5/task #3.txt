@@ -1,0 +1,66 @@
+.data
+msg1: .asciiz "keyboard input: "       
+msg2: .asciiz "Reversed string is: "  
+buffer1: .space 20
+buffer2: .space 20                                  
+
+
+.text
+
+main:
+
+add $t6, $0,$0    # t6 = 0  
+
+la $a0, msg1 
+li $v0, 4         #print msg1
+syscall
+
+la $a0, buffer1   #a0 points to buffer1 
+li $v0, 8         #take input
+syscall
+j strlen
+
+strlen:
+add $t1, $a0, $t6           # t1 = memory string[i]
+lb $t4,($t1)                # loading data from t1 memory which is characters   
+beq $t4, $0, task           # if the character equals 0, go to finish
+addi $t6, $t6,1             # incrementing i by 1
+
+addi $t7,$0,0		    #initialize t7 to 0 for future use
+add $t5, $0,$t6		    #original length of string in t5 for further use
+j strlen
+
+task:
+
+la $t0,buffer1		#t0 points buffer1
+add $t0, $t0,$t6	#t0=buffer1 end
+lb $t1, 0($t0)		#t1 starts from last byte of buffer1
+
+la $t2,buffer2		#t2 holds the address of buffer2
+add $t2,$t2,$t7		#t2 starts from 0 byte in buffer2
+sb $t1, 0($t2)		#store t1 byte in t2
+
+beq $t7,$t5,finish	
+addi $t6, $t6,-1	#decrement t6
+addi $t7, $t7,1		#increment t5
+j task
+
+
+
+finish:
+
+la $a0, msg2 
+li $v0, 4         #print msg2
+syscall
+
+la $t3,buffer2	  #oad address of buffer2 in t3
+addi $t3,$t3,1    #add 1 to t3 address
+move $a0, $t3	  #move t3 address in a0 for print
+li $v0, 4	  #print 
+syscall
+
+li $v0, 10              # exit gracefully
+syscall  
+
+
+

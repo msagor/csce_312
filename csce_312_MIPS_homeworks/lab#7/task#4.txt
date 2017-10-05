@@ -1,0 +1,160 @@
+
+
+
+module nand_3(out,a,b,c);
+input a,b,c;
+output out;
+wire d,e;
+and n1(d,a,b);
+and n2(e,d,c);
+not (out,e);
+endmodule
+
+
+module DFF_PC(Q, Qbar, Clk, Data, prebar, clrbar, wren);
+	input Data, Clk, prebar, clrbar, wren;
+	output Q, Qbar;
+	wire clock;
+	wire data_not, clock_not, first_nand1, first_nand2;
+	wire nand1, nand2;
+	wire first_q, first_qbar;
+	and one   (clock, wren, Clk);
+	not two	  (data_not, Data);
+	not three (clock_not, clock);
+	nand four (first_nand1,clock, Data);
+	nand five (first_nand2,clock, data_not);
+	nand_3 six(first_qbar,first_nand2,first_q, clrbar); 
+	nand_3 seven(first_q,first_nand1,first_qbar, prebar);
+	nand eight(nand1,clock_not, first_q);
+	nand nine (nand2,clock_not, first_qbar);
+	nand ten  (Qbar,nand2,Q, clrbar);
+	nand elvn (Q,nand1,Qbar, prebar);
+	endmodule
+
+module m555(clock);
+    parameter InitDelay = 10, Ton = 50, Toff = 50;
+    output clock;
+    reg clock;
+
+    initial begin
+        #InitDelay clock = 1;
+    end
+
+    always begin
+        #Ton clock = ~clock;
+        #Toff clock = ~clock;
+    end
+endmodule
+
+module testD(q, qbar, clock, data, PREbar, CLRbar, Wen);
+    input  q, qbar, clock;
+    output data, PREbar, CLRbar, Wen;
+    reg    data, PREbar, CLRbar, Wen;
+
+    initial begin
+        $monitor ($time, " q = %d, qbar = %d, clock = %d, data = %d Wen = %d, PREbar=%d, CLRbar=%d", q, qbar,  clock, data, Wen,PREbar, CLRbar);
+        data = 0; Wen = 1; PREbar = 1; CLRbar = 1;
+        #25  
+        data = 1;
+        #100 
+        
+        data = 0;
+        #50 
+        data = 1;
+        #50 
+        data = 0;
+        #100 
+        data = 1;
+        #50 
+        data = 0;
+        #50 
+        data = 1;
+        #100
+        
+        Wen = 0;
+        
+        data = 0;
+        #50 
+        data = 1;
+        #50 
+        data = 0;
+        #100 
+        data = 1;
+        #50 
+        data = 0;
+        #50 
+        data = 1;
+        #100
+        
+        Wen = 1;
+        
+        data = 0;
+        #50 
+        data = 1;
+        #50 
+        data = 0;
+        #100 
+        data = 1;
+        #50 
+        data = 0;
+        #50 
+        data = 1;
+        #100
+        
+        CLRbar = 0;
+        
+        data = 0;
+        #50 
+        data = 1;
+        #50 
+        data = 0;
+        #100 
+        data = 1;
+        #50 
+        data = 0;
+        #50 
+        data = 1;
+        #100
+        
+        CLRbar = 1;
+        
+        PREbar = 0;
+        
+        data = 0;
+        #50 
+        data = 1;
+        #50 
+        data = 0;
+        #100 
+        data = 1;
+        #50 
+        data = 0;
+        #50 
+        data = 1;
+        #100
+        
+        PREbar = 1;
+        
+        data = 0;
+        #50 
+        data = 1;
+        #50 
+        data = 0;
+        #100 
+        data = 1;
+        #50 
+        data = 0;
+        #50 
+        data = 1;
+        #100
+	
+        $finish;
+    end
+endmodule
+
+module testBenchD;
+    wire clock, q, qbar, data, PREbar, CLRbar, Wen;
+    m555 clk(clock);
+    DFF_PC dff(q, qbar, clock, data, PREbar, CLRbar, Wen);
+    testD td(q, qbar, clock, data, PREbar, CLRbar, Wen);
+endmodule

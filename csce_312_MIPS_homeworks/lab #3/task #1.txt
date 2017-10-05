@@ -1,0 +1,31 @@
+
+
+
+
+.data 0x10008000	
+
+msg#y: .asciiz "The number is a power of 2"
+
+msg#n: .asciiz "The number is not a power of 2"
+                          
+.text 
+
+
+main:
+
+add $t0, $zero, 128       #put the number in the $t0
+
+addi $t1, $t0, -1         #subtract 1 to flip the bits and save it to $t1
+
+and $t2, $t0, $t1         #AND operation of $t0 and $t1
+
+bne $t2, $0, else         #if $t2!=0, execute else
+  la $a0, msg#y           #if $t2=0, print the yes msg
+
+else:
+  la $a0, msg#n           #if $t2=1, print the no msg
+  
+syscall
+  
+  
+  

@@ -1,0 +1,36 @@
+#counts length of a string
+.data
+string: .asciiz "CSCE350ARC"                                           
+printedMessage: .asciiz "The length of the string: "
+
+.text
+
+
+main:
+add $t6, $0,$0              # t6 = 0                          
+la $a0, string              # Load address of string in a0
+jal strlen                  # Call strlen procedure.
+
+
+strlen:
+add $t1, $a0, $t6           # t1 = memory string[i]
+lb $t4,($t1)                # loading data from t1 memory which is characters
+beq $t4, $0, finish         # if the character equals 0, go to finish
+addi $t6, $t6,1             # incrementing i by 1
+j strlen
+
+
+finish:
+
+
+li $v0, 4
+la $a0, printedMessage
+syscall
+
+li $v0, 1
+move $a0, $t6       # print the i value = how many characters in the string
+syscall
+
+li $v0, 10          # exit gracefully
+syscall     
+

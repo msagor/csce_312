@@ -1,0 +1,285 @@
+.data
+
+
+FL:.word M 				
+	
+M:.space 2048
+
+msg1:.asciiz "Enter the Postfix expression: "
+
+msg2:.asciiz "\nThe evaluated expression is: "
+
+buffer1:.space  256			
+
+NL:.asciiz "\n"		
+
+addition:.asciiz "+"
+	
+subtraction:.asciiz "-"
+	
+multiply:.asciiz "*"
+	
+divide:.asciiz "/"
+
+buf:.word 0			#0
+
+TOP:.word 0				#0
+
+
+
+
+
+.text
+
+main:
+
+la $a0, msg1		
+li $v0, 4
+syscall			#msg1=ask for postfix expressions
+
+jal 	mem_init	#call function
+
+la $a0, buffer1		#put the address of buffer1 in a0
+li $v0, 8		#takes input and put it into buffer1
+syscall
+
+jal postfix
+
+move $a0 ,$v0
+li   $v0, 1
+syscall			#print integer	
+
+li $v0, 10		#end gracefully
+syscall
+
+
+
+
+
+
+mem_init:
+la $t7, FL		#t7= FL address
+lw $t7, 0($t7)		#t7 = start of FL
+li $t1, 0		#t1=0 for future use
+li $t2, 2048		#t2=2048 for future use
+beq $0,$0,loop1		#false condition to jump into loop
+loop1:
+bge $t1, $t2, exit1	#until t1 equals t2
+addi $s6, $0, 8
+add $s6, $s6,$t7	#s6 = t7 + 8
+sw $s6,4($t7)		#
+addi $t7, $t7, 8	#incrementing t7 by 8
+addi $t1, $t1, 8	#incrementing t1 by 8
+j loop1			#loop again
+exit1:
+jr $ra
+
+alloc:
+la $t7, FL 		#get FL pointer
+beq $t7, $0,alloc_done	#if reaches end
+	
+lw $v0, ($t7) 		#address of first slot
+lw $t1, 4($v0) 		#load next slot
+sw $t1, ($t7) 		#save next slot address in t7
+jr $ra
+alloc_done:
+addi $v0, $0, 1		#1 is not multiple of 4.
+jr $ra	
+
+
+dealloc:
+add $t7, $a0,$0
+beq $t7, $0, dealloc_done   
+la $t1, FL		#load the current FL address
+lw $t2,($t1) 		#load the current slot in t2
+sw $t2, 4($t7)		#save current data to t7 
+sw $0,($t7) 		#erase data
+sw $t7, 0($t1) 		#transfer data from t7 to previous slot of FL		
+j $ra
+dealloc_done:
+jr $ra
+
+stack_push:
+addi $sp,-8		#create a stack of two
+sw $ra, 0($sp) 		#put return address
+jal 	alloc 		#allocate memory of 4+4 byte
+move 	$t7, $v0	
+lw $ra, ($sp)		#regain return address from stack
+lw $t1, ($a0) 		#load data from a0 address
+sw $t1, ($t7) 		#save data in t7 = current free slot of FL
+la $t1, TOP 		#TOP address in t1
+lw $t2, 0($t1) 		
+sw $t2, 4($t7) 		#address of top of stack is stored in the second slot of FL
+sw $t7, ($t1) 		#assign next free slot in TOP
+addi $sp, 8 		#dismiss stack
+jr $ra			
+ 
+stack_pop:
+addi $sp,-8 		#create a stack
+sw $ra, ($sp)		#save return address
+la $t7, TOP 		#load the address of current top of stack
+lw $t1, ($t7) 		#load the top of stack
+lw $s6, ($t1) 		#get data from top of stack
+la $v0, buf		#v0 holds the address of buffer
+sw $s6, ($v0)		#store the data from the top of stack in buffer
+lw $t2, 4($t1) 		# load the next slot address
+sw $t2, ($t7) 		#save next slot address in TOP
+
+add $a0, $t1, $0 	#move address in a0 
+jal dealloc
+la $v0, buf		#load the address of buffer in v0
+lw $ra, ($sp)		#reload return address from the stack
+addi $sp, 8		#close stack
+jr $ra
+
+
+postfix:		
+addi $sp, -4 	 	#create stack
+sw $ra, ($sp)		#save return address
+add $t6, $a0, $0	#load first address in t6
+
+loop2:
+lb  $t7, 0($t6)		#load first char in t7
+la $t1, NL		#t1 = address of null
+lb $t1, 0($t1) 		#t1 = null for future comparison
+beq $t7, $t1, return 	#if at the end, then go to return
+
+la $s1, addition
+lb $s1, 0($s1) 
+la $s2, subtraction
+lb $s2, 0($s2) 
+la $s3, multiply
+lb $s3, 0($s3)
+la $s4, divide
+lb $s4, 0($s4)
+
+beq $t7, $s1, op_addition 
+beq $t7, $s2, op_subtraction
+beq $t7, $s3, op_multiply
+beq $t7, $s4, op_divide
+j digit
+
+digit:
+addi $t7, $t7, -48
+la $a0, buf 
+sw $t7, ($a0)
+jal stack_push
+
+addi $t6, $t6, 1 	
+j loop2
+
+op_addition:
+jal stack_pop
+addi $sp, -4
+lw $s7 ,($v0)			#load first digit
+sw $s7, ($sp)			#temporary save			
+jal stack_pop
+lw $s7, ($sp)			#retrieve data
+lw $s6 ,($v0)			#load second digit
+add $s6, $s6, $s7 		#execute operation
+la $a0, buf			#load address of buffer
+sw $s6, ($a0)			#save the computed value
+jal stack_push			
+addi $t6, $t6, 1
+addi $sp, 4			#return stack
+j loop2
+
+op_subtraction:
+jal stack_pop
+addi $sp, -4
+lw $s7 ,($v0)			#load first digit
+sw $s7, ($sp)			#temporary save			
+jal stack_pop
+lw $s7, ($sp)			#retrieve data
+lw $s6 ,($v0)			#load second digit
+sub $s6, $s6, $s7 		#execute operation
+la $a0, buf			#load address of buffer
+sw $s6, ($a0)			#save the computed value
+jal stack_push			
+addi $t6, $t6, 1
+addi $sp, 4			#return stack
+j loop2
+
+op_multiply:
+jal stack_pop
+addi $sp, -4
+lw $s7 ,($v0)			#load first digit
+sw $s7, ($sp)			#temporary save			
+jal stack_pop
+lw $s7, ($sp)			#retrieve data
+lw $s6 ,($v0)			#load second digit
+mul $s6, $s6, $s7 		#execute operation
+la $a0, buf			#load address of buffer
+sw $s6, ($a0)			#save the computed value
+jal stack_push			
+addi $t6, $t6, 1
+addi $sp, 4			#return stack
+j loop2
+
+op_divide:
+jal stack_pop
+addi $sp, -4
+lw $s7 ,($v0)			#load first digit
+sw $s7, ($sp)			#temporary save			
+jal stack_pop
+lw $s7, ($sp)			#retrieve data
+lw $s6 ,($v0)			#load second digit
+div $s6, $s6, $s7 		#execute operation
+la $a0, buf			#load address of buffer
+sw $s6, ($a0)			#save the computed value
+jal stack_push			
+addi $t6, $t6, 1
+addi $sp, 4			#return stack
+j loop2
+
+
+return:
+
+la $a0, msg2		
+li $v0, 4
+syscall				#msg2
+
+jal stack_pop			#get address of buffer
+lw $t6, ($v0) 			#get final answer 
+move $v0,$t6
+addi $sp, -4			#create a stack	
+lw $ra, 4($sp)
+addi $sp, 8
+jr $ra				#going back to main
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

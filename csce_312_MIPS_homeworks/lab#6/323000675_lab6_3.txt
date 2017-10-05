@@ -1,0 +1,47 @@
+
+
+module full_adder(s,cout, a, b,cin);
+    input    a, b,cin;
+    output   s,cout;
+    
+
+    nand    n1(c,a,b);
+    nand    n2(d,a,c);
+	nand    n3(e,b,c);
+	nand    n4(f,d,e);
+	nand    n5(g,f,cin);
+	nand    n6(h,f,g);
+	nand    n7(i,g,cin);
+	nand    n8(cout,g,c);
+	nand    n9(s,h,i);
+	
+endmodule
+
+module test_first();              /* test bench module for ful_adder() */
+    reg    a, b,cin;
+    wire   s, cout;
+
+    full_adder fm(s,cout, a, b,cin);
+
+    initial begin
+        $monitor ($time,"\ta=%b\tb=%b\tcin=%b\ts=%b\tcout=%b",a,b,cin,s,cout);
+        a = 0; b = 0; cin = 0;
+        #1 
+        a = 0; b = 0; cin = 1;
+		#1
+		a = 0; b = 1; cin = 0;
+		#1
+		a = 0; b = 1; cin = 1;
+		#1
+		a = 1; b = 0; cin = 0;
+		#1
+		a = 1; b = 0; cin = 1;
+		#1
+		a = 1; b = 1; cin = 0;
+		#1
+		a = 1; b = 1; cin = 1;
+		#1
+		$finish;
+    end
+endmodule
+

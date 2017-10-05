@@ -1,0 +1,46 @@
+        
+        main:
+       
+        add $s3, $zero,3
+        
+        sll $t0, $s3, 0
+        
+        sll $t1, $s3, 1
+        
+        sll $t2, $s3, 2
+        
+        sll $t3, $s3, 3
+        
+        sll $t4, $s3, 4
+        
+        sll $t5, $s3, 5
+        
+        sll $t6, $s3, 6
+        
+        sll $t7, $s3, 7
+        
+        
+        addi	$v0,	$0,	10	# Move "exit" system function code to argument reg
+      	syscall			      	# Request the OS to carry out the program exit
+        
+         
+        
+       
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        

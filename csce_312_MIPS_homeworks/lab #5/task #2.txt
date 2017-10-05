@@ -1,0 +1,146 @@
+.data
+msg1: .asciiz "keyboard input: "       
+msg2: .asciiz "Error in input. should not mix char with int"  
+msg3: .asciiz "The integer value is: "
+buffer1: .space 1024                                
+
+.text
+
+main:
+
+
+add $t6, $0,$0    # t6 = 0  initially
+
+la $a0, msg1 
+li $v0, 4         #print msg1
+syscall
+
+la $a0, buffer1   #a0 points to buffer1 
+li $v0, 8         #take input and saves it in buffer1
+syscall
+j strlen
+
+strlen:
+add $t1, $a0, $t6           # t1 = memory string[i]
+lb $t4,($t1)                # loading data from t1 memory which is characters   
+beq $t4, $0, task           # if the character equals empty, go to task
+addi $t6, $t6,1             # incrementing i by 1
+j strlen
+
+
+task:
+#t6= size of string
+#a0= address of string
+
+#addi $t6,$t6,-1		#resizing the string size
+addi $t3, $0,1		#t3 =1 for further use
+addi $s0, $0,0		#s0 where the actual integer will be saved
+addi $s4, $0,2		#s4 = 2 for future use
+move $t0, $a0		#move a0 address in t0
+
+
+
+
+start:
+lb $t1, 0($t0)		#load the first byte in t1
+
+beq $t1,$0,reroute	#test for 0.
+
+slti $t2,$t1,0		# t1<0 ??....i want t2=0
+beq $t2,$0,reroute	#t2 = 0 so reroute
+j error
+
+slti $t2,$t1,10		#t1<10 ??....i want t2=1
+beq $t2,$t3,reroute	#t2 = t3 =1 so reroute
+j error
+
+
+
+error:
+
+la $a0, msg2		#print msg2
+li $v0, 4		#v0=4 code for printing something
+syscall	
+li $v0, 10
+syscall			#exit gracefully
+
+
+
+reroute:
+addi $t1,$t1,-48	#get the actual value
+addi $t5,$t6,0		#t5=string size
+
+addi $t7,$0,10		#t7 starts with value 10
+addi $s7,$0,10		#s7 starts with value 10
+
+#beq $t5, $s4,previousbyte
+beq $t5,$t3,lastbyte	#if t5 = t3 =1 means it reached the last byte(for last byte we dont multiply it with 10, so the "lastbyte" function is the strategy)
+addi $s3,$0,1		#
+
+loop:
+    #beq $t5, $s4,previousbyte
+    beq $t5,$t3,lastbyte
+    mul $t7,$t7,$s7		#10 X 10
+    addi $s3,$s3,1
+    #addi $t5,$t5,-1		#decrement t5 by 1
+    beq $s3,$t5,save		#if s3 reaches size, then goto save to save in s0
+    j loop
+
+
+save:
+mul $t7, $t7,$t1	#t5 multiplied with the t1 value
+add $s0, $s0,$t7	#s0 gets the actual value
+addi $t0,$t0,1		#increment t0 for reading next byte
+addi $t6, $t6,-1	#decrement the size of string as read
+beq $t6,$t3,print	#if size reaches 0, go to print
+j start			#if size not 0, means last byte is still there
+
+
+
+lastbyte:
+add $s0, $s0,$t1	#s0 gets the actual value
+j print
+
+
+print:
+
+
+la $a0, msg3		#print msg3
+li $v0, 4		#v0=4 code for printing something
+syscall	
+
+div $s0,$s0,100
+move $a0, $s0 
+li $v0, 1
+syscall
+
+li $v0, 10          # exit gracefully
+syscall     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,63 @@
+
+
+module Dlatch (q,qbar,clock,data);
+output q, qbar;
+input clock, data;
+wire x1, x2,p;
+not one	 (p,data);
+nand two (x1,clock, data);
+nand three (x2,clock, p);
+nand four (qbar,x2,q);
+nand five (q,x1,qbar);
+endmodule
+
+
+
+module m555(clock);
+    parameter InitDelay = 10, Ton = 50, Toff = 50;
+    output clock;
+    reg clock;
+
+    initial begin
+        #InitDelay clock = 1;
+    end
+
+    always begin
+        #Ton clock = ~clock;
+        #Toff clock = ~clock;
+    end
+endmodule
+
+module testD(q, qbar, clock, data);
+    input  q, qbar, clock;
+    output data;
+    reg    data;
+
+    initial begin
+        $monitor ($time, " q = %d, qbar = %d, clock = %d, data = %d", q, qbar, clock, data);
+        data = 0;
+        #25  
+        data = 1;
+        #100 
+        data = 0;
+        #50 
+        data = 1;
+        #50 
+        data = 0;
+        #100 
+        data = 1;
+        #50 
+        data = 0;
+        #50 
+        data = 1;
+        #100
+        $finish; /* $finish simulation after 100 time simulation units */
+    end
+endmodule
+
+module testBenchD;
+    wire clock, q, qbar, data;
+    m555 clk(clock);
+    Dlatch dl(q, qbar, clock, data);
+    testD td(q, qbar, clock, data);
+endmodule

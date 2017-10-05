@@ -1,0 +1,195 @@
+.data
+
+.align	2				# Request alignment on word (4 byte) boundary
+
+
+
+## 4x4 Matrix Declaration ##
+
+A0:	.word 41, 42, 43, 44		# Declare and initialize 1st Row of A
+
+A1:	.word 55, 56, 57, 58		# Declare and initialize 2nd Row of A
+
+A2:	.word 19, 10, 11, 12		# Declare and initialize 3rd Row of A
+
+A3:	.word 23, 24, 25, 26		# Declare and initialize 4th Row of A
+
+A:	.word A0, A1, A2, A3		# Declare and initialize the pointer to the rows
+
+
+
+NUMROWS_A:	.word	4		# the number of rows
+
+NUMCOLS_A:	.word	4		# the number of columns
+
+
+
+## 4x4 Matrix Declaration ##
+
+T0:	.word  0,  0,  0,  0		# Declare and initialize 1st Row of T
+
+T1:	.word  0,  0,  0,  0		# Declare and initialize 2nd Row of T
+
+T2:	.word  0,  0,  0,  0		# Declare and initialize 3rd Row of T
+
+T3:	.word  0,  0,  0,  0		# Declare and initialize 4th Row of T
+
+T:	.word T0, T1, T2, T3		# Declare and initialize the pointer to the rows
+
+
+
+NUMROWS_T:	.word	4		# the number of rows
+
+NUMCOLS_T:	.word	4		# the number of columns
+
+.data
+
+.align	2				# Request alignment on word (4 byte) boundary
+
+
+
+## 4x4 Matrix Declaration ##
+
+A0:	.word 41, 42, 43, 44		# Declare and initialize 1st Row of A
+
+A1:	.word 55, 56, 57, 58		# Declare and initialize 2nd Row of A
+
+A2:	.word 19, 10, 11, 12		# Declare and initialize 3rd Row of A
+
+A3:	.word 23, 24, 25, 26		# Declare and initialize 4th Row of A
+
+A:	.word A0, A1, A2, A3		# Declare and initialize the pointer to the rows
+
+
+
+NUMROWS_A:	.word	4		# the number of rows
+
+NUMCOLS_A:	.word	4		# the number of columns
+
+
+
+## 4x4 Matrix Declaration ##
+
+T0:	.word  0,  0,  0,  0		# Declare and initialize 1st Row of T
+
+T1:	.word  0,  0,  0,  0		# Declare and initialize 2nd Row of T
+
+T2:	.word  0,  0,  0,  0		# Declare and initialize 3rd Row of T
+
+T3:	.word  0,  0,  0,  0		# Declare and initialize 4th Row of T
+
+T:	.word T0, T1, T2, T3		# Declare and initialize the pointer to the rows
+
+
+
+NUMROWS_T:	.word	4		# the number of rows
+
+NUMCOLS_T:	.word	4		# the number of columns
+
+
+.text
+
+.globl main
+
+
+
+main:
+   
+  la $a0, A		   #address of A
+  la $a1, T		   #address of T
+
+  la $a2, NUMROWS_A	   #address of NUMROWS
+  la $a3, NUMCOLS_A	   #address of NUMCOLS
+  lw $s0, ($a2)		   #save number of rows of A
+  lw $s1, ($a3)		   #save number of cols of A
+
+  beq $0,$0, function      #creating a fake comparison to call the function
+
+
+function:
+  addi $t6, $0,0	   #t6 = i = 0
+  loop1:
+    beq $t6, $s0, end_1    # i and num of row comparison
+    loop2:
+      addi $t7, $0,0       #t7 = j = 0
+      beq $t7, $s1, end_2  # i and num of col comparison   
+      sll $t2, $t6,2	   # i=i*4
+      add $t2, $t2, $a0	   #adding i and A to get address of A[i]
+      sll $t4 ,$t7, 2	   #j=j*4
+      add $t4, $t3, $t4	   #A[i][j]
+      lw  $t0, ($t4)	   #value of A[i][j] in t0
+
+      add $t5, $t4, $a1	   #adding j and T to get address of T[j]
+      add $t5, $t5, $t2	   #T[j][i]
+      sw $t0, ($t5) 	   #storing t0 in t5
+      addi $t7, 1	   #increasing j by 1
+      j loop2
+    end_2:
+    addi $t6,1	  	   #increasing i by 1
+    j loop1
+  end_1:
+  
+   li $v0, 10		   #gracefully exit
+   syscall
+
+
+
+
+         
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
